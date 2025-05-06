@@ -1,4 +1,6 @@
 from flask import Flask
+from flask import request
+from flask import redirect
 import random
 
 app = Flask(__name__)
@@ -8,6 +10,7 @@ topics = [
     {'id': 2, 'title': 'css', 'body': 'css is...'},
     {'id': 3, 'title': 'javascript', 'body': 'javascript is...'}
 ]
+nextId = 4
 
 def template(contents, content):
     return f'''<!doctype html>
@@ -47,16 +50,27 @@ def read(id):
 
     return template(getContents(),f'<h2>{title}</h2>{body}')
 
-@app.route('/create/')
+@app.route('/create/', methods=['GET', 'POST'])
 def create():
-    content = '''
-        <form action="/create/" method="POST">
-            <p><input type="text" name= "title" placeholder="title"></p>
-            <p><textarea name="body" placeholder="body"></textarea></p>
-            <p><input type="submit" value="create"></p>
-        </form>
-    '''
-    return template(getContents(),content)
+    print('request.method', request.method)
+    if(request.method == 'GET'):
+        content = '''
+            <form action="/create/" method="POST">
+                <p><input type="text" name= "title" placeholder="title"></p>
+                <p><textarea name="body" placeholder="body"></textarea></p>
+                <p><input type="submit" value="create"></p>
+            </form>
+        '''
+        return template(getContents(),content)
+    elif request.method == 'POST':
+        global nextId
+        title = request.form['title']
+        body = request.form['body']
+        newTopic = {'id':nextId,'title':title, 'body':body}
+        topics.append(newTopic)
+        url = f"/read/{nextId}/"
+        nextId += 1
+        return redirect(url)
 
 
 app.run(debug=True)
