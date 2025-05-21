@@ -4,8 +4,12 @@
 # Flask Official Documentation
 - ⚗️[Flask](https://flask.palletsprojects.com/)⚗️
 
+---
+
 # Flask
 - Flask는 Python으로 웹 서버를 만들 수 있게 해주는 마이크로 웹 프레임워크
+
+---
 
 # 기본 구조
 1. Flask 클래스(웹 서버 생성용)를 flask 패키지에서 가져옴
@@ -55,3 +59,36 @@
             - debug: 개발 모드 (자동 재시작 + 디버그 메시지)
             - port: 포트 번호 설정 (기본값: 5000)
             - host: 기본은 localhost (127.0.0.1), '0.0.0.0'은 외부에서 접속 가능하게 함
+
+---
+
+# 브라우저 탭 아이콘 (favicon)
+- 웹사이트를 브라우저에서 열었을 때 탭에 표시되는 작은 아이콘
+- `*.py`와 같은 파이썬 파일을 실행했을 때, favicon이 없으면 아래와 같은 에러가 발생
+    - `"GET /favicon.ico HTTP/1.1" 404 -`
+    - 브라우저가 웹사이트를 열면 자동으로 `http://yourserver/favicon.ico` 경로로 요청을 보내기 때문
+    - 아이콘이 있으면 탭에 표시, 없으면 404 에러 발생
+    - 필수 사항 아님
+- 브라우저 탭 아이콘을 넣고 싶으면, `favicon.ico` 파일을 프로젝트에 추가
+    - `*.ico`는 Windows 아이콘 파일 형식
+    - 브라우저는 보통 `*.ico` 파일을 파비콘으로 인식해서 자동으로 로딩
+- 적용하는 방법
+    ```
+        from flask import Flask, send_from_directory
+
+        app = Flask(__name__)
+
+        @app.route("/favicon.ico")
+        def favicon():
+            return send_from_directory("static", "favicon.ico")
+
+        @app.route("/")
+        def home():
+            return "Hello, world!"
+
+        if __name__ == "__main__":
+            app.run()
+    ```
+    - static 폴더 하위에 `favicon.ico`를 넣으면 됨
+
+---
