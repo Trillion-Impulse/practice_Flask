@@ -16,8 +16,13 @@
     ```
     from flask import Flask
     ```
-    - Flask라는 웹 프레임워크에서 Flask 클래스만 가져옴
+    - flask라는 웹 프레임워크에서 Flask 클래스만 가져옴
     - 정형화된 부분: 거의 모든 Flask 앱은 이 줄로 시작합니다.
+    - An instance of this class will be our WSGI application
+        - WSGI: Web Server Gateway Interface
+            - 파이썬 웹 애플리케이션과 웹 서버 사이의 표준 인터페이스
+            - 웹 서버(예: Gunicorn, uWSGI)와 웹 프레임워크(예: Flask, Django)가 서로 통신하기 위해 사용하는 규칙
+    - 
 
 2. Flask 앱 객체 생성
     ```
@@ -27,6 +32,10 @@
     - __name__은 파이썬 내장 변수로, 현재 모듈의 이름을 의미
         - 문자열을 직접 넣을 수도 있지만, __name__을 쓰는 것이 정석이며 대부분의 공식 문서나 튜토리얼에서도 사용
     - Flask는 이 값을 사용해서 앱의 루트 경로, 정적 파일 경로 등을 설정
+    - Flask 클래스로 app 이라는 인스턴스를 만듬
+        - app은 객체(Object)이며, 동시에 인스턴스(Instance)이다.
+            - 객체(Object): 데이터 + 기능을 가진 모든 것
+            - 인스턴스(Instance): 특정 클래스에 의해 생성된 객체
 
 3. 라우팅 정의: 특정 URL 요청이 왔을 때 어떤 동작을 할지 정의
     ```
