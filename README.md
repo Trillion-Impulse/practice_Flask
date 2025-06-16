@@ -22,7 +22,6 @@
         - WSGI: Web Server Gateway Interface
             - 파이썬 웹 애플리케이션과 웹 서버 사이의 표준 인터페이스
             - 웹 서버(예: Gunicorn, uWSGI)와 웹 프레임워크(예: Flask, Django)가 서로 통신하기 위해 사용하는 규칙
-    - 
 
 2. Flask 앱 객체 생성
     ```
@@ -42,6 +41,8 @@
     @app.route('/')
     ```
     - 데코레이터라고 하며, `'/'` 경로(URL)에 사용자가 접근했을 때, 바로 아래 함수(index)를 실행하라는 의미
+        - 데코레이터(decorator): 함수 위에 @를 붙여서 사용하는 파이썬 문법
+            - 기존 함수에 기능을 추가하거나 변경할 수 있게 해줌
     - 정형화된 형식이지만, `'/'`는 경로(path) 이므로 다른 경로로 자유롭게 변경 가능
 
     ```
@@ -52,6 +53,8 @@
         - 함수 이름은 자유롭게 변경 가능, 다만 의미 있는 이름을 쓰는 것 추천
     - 함수의 **문자열 형태의 반환값**이 브라우저에 그대로 출력
         - 문자열을 반환하는 대신, HTML을 반환하거나 템플릿 파일을 사용 가능
+    - The function returns the message we want to display in the user’s browser.
+    - The default content type is HTML, so HTML in the string will be rendered by the browser.
 
 4. 서버 실행
     ```
