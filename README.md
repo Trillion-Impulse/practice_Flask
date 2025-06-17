@@ -73,30 +73,42 @@
                 - port: 포트 번호 설정 (기본값: 5000)
                 - host: 기본은 localhost (127.0.0.1), '0.0.0.0'은 외부에서 접속 가능하게 함
     - Flask 2.2부터
-        CLI에 아래와 같이 입력해 실행
-        ```
-        flask --app hello run
-        ```
-        - `flask`: Flask 프로젝트를 실행하거나 관리할 수 있게 해주는 명령어 프로그램
-            - flask run: 서버 실행
-        - `--app`: 내 앱이 어디에 있는지 알려주는 옵션
-            - 뒤에 오는 값(hello)이 Flask 앱이 정의된 파일/모듈
-                - 파일 이름이 hello.py 일때
-        - `hello`: --app의 값
-            - 내 Flask 앱은 hello.py 파일에 있다
-            - .py는 생략 (Flask가 자동으로 붙여줌)
-            - hello.py 안에 반드시 Flask 앱 인스턴스 `(app = Flask(__name__))` 가 있어야 함
-            - 만약 Flask 앱 인스턴스 이름이 app이 아니라면 아래와 같이 명시
-                - 예: `myapp = Flask(__name__)`인 경우
+        - 터미널에 CLI 명령어를 아래와 같이 입력해 실행
+            - 시스템 또는 가상환경의 **PATH에 flask 실행 파일이 있어야 함**
+            - Scripts\flask.exe 또는 bin/flask가 인식되어야 함
+            ```
+            flask --app hello run
+            ```
+            - `flask`: Flask 프로젝트를 실행하거나 관리할 수 있게 해주는 명령어 프로그램
+                - flask run: 서버 실행
+            - `--app`: 내 앱이 어디에 있는지 알려주는 옵션
+                - 뒤에 오는 값(hello)이 Flask 앱이 정의된 파일/모듈
+                    - 파일 이름이 hello.py 일때
+            - `hello`: --app의 값
+                - 내 Flask 앱은 hello.py 파일에 있다
+                - .py는 생략 (Flask가 자동으로 붙여줌)
+                - hello.py 안에 반드시 Flask 앱 인스턴스 `(app = Flask(__name__))` 가 있어야 함
+                - 만약 Flask 앱 인스턴스 이름이 app이 아니라면 아래와 같이 명시
+                    - 예: `myapp = Flask(__name__)`인 경우
+                        ```
+                        flask --app hello:myapp run
+                        ```
+            - `run`: 실행 명령
+                - 내부적으로 Flask는 app.run()을 호출해서 웹 서버를 띄움
+                - 포트, 디버그 모드 등도 CLI 옵션으로 설정 가능
                     ```
-                    flask --app hello:myapp run
+                    flask --app hello run --debug --port 8080
                     ```
-        - `run`: 실행 명령
-            - 내부적으로 Flask는 app.run()을 호출해서 웹 서버를 띄움
-            - 포트, 디버그 모드 등도 CLI 옵션으로 설정 가능
-                ```
-                flask --app hello run --debug --port 8080
-                ```
+        - 파이썬 모듈을 통한 실행
+            - 직접 실행 경로를 지정하는 방법
+            - flask를 파이썬 모듈로 직접 실행
+            ```
+            python -m flask --app hello run
+            ```
+            - `-m`: 모듈 실행을 의미
+            - **flask 명령어가 PATH에 없어도 동작함**
+            - 특히 가상환경 내에서 안정적으로 실행 가능
+            
 
 
 ---
