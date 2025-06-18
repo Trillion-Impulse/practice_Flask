@@ -177,6 +177,26 @@ def hello():
     return 'Hello, World'
 ```
 
+## 라우팅의 변수 규칙
+- <변수명> 형태로 URL 안에 변수를 넣으면, Flask가 그 값을 함수에 전달
+- 선택적으로, `<converter:variable_name>`처럼 converter를 사용하여 인자의 타입을 지정 가능
+```
+@app.route('/post/<int:post_id>')
+def show_post(post_id):
+    # show the post with the given id, the id is an integer
+    return f'Post {post_id}'
+```
+- `/post/10`처럼 접속하면 `10`을 자동으로 정수형(int)로 변환하여 `post_id = 10`으로 show_post() 함수에 들어감
+- `<int:post_id>`는 정수 외의 값(ex: "abc")을 허용하지 않음
+
+| types of Converter | |
+|-----|-----|
+| string | (default) accepts any text without a slash |
+| int | accepts positive integers |
+| float | accepts positive floating point values|
+| path | like string but also accepts slashes|
+| uuid | accepts UUID strings|
+
 ---
 
 # 브라우저 탭 아이콘 (favicon)
