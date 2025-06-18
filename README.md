@@ -163,7 +163,19 @@ def hello(name):
 
 ---
 
+# 라우팅
+- 사용자들은 기억할 수 있고 직접 방문할 수 있는 의미 있는 URL을 사용하는 페이지를 더 좋아하고 다시 방문할 가능성이 더 높음
+- Flask에서 특정 URL로 들어온 요청에 대해 어떤 함수가 실행될지 지정하려면 @app.route()를 사용
+- URL의 일부를 동적으로 만들 수 있고, 여러 규칙을 하나의 함수에 연결 가능
+```
+@app.route('/')
+def index():
+    return 'Index Page'
 
+@app.route('/hello')
+def hello():
+    return 'Hello, World'
+```
 
 ---
 
