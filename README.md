@@ -197,6 +197,29 @@ def show_post(post_id):
 | path | like string but also accepts slashes|
 | uuid | accepts UUID strings|
 
+## 고유한 URL들 / 리디렉션 동작
+```
+@app.route('/projects/')
+def projects():
+    return 'The project page'
+
+@app.route('/about')
+def about():
+    return 'The about page'
+```
+- projects 엔드포인트에 대한 정식 URL(canonical URL)은 끝에 슬래시가 붙음
+    - 이는 파일 시스템의 폴더와 유사합니다.
+    - 만약 끝에 슬래시가 없는 URL(/projects)에 접근하면, 
+        Flask가 자동으로 301 리디렉션을 해서 끝에 슬래시가 붙은 정식 URL(/projects/)로 이동
+    - 그래서 /projects와 /projects/는 결과적으로 같은 페이지로 연결
+- about 엔드포인트에 대한 정식 URL은 끝에 슬래시가 없음
+    - 이는 파일의 경로(pathname)와 유사
+    - 끝에 슬래시가 붙은 URL(/about/)에 접근하면 404 “찾을 수 없음” 오류가 발생
+    - 이것은 이러한 리소스들에 대해 URL을 고유하게 유지하는 데 도움이 되며, 
+        검색 엔진이 같은 페이지를 두 번 색인하지 않도록 도와줌
+    - /about과 /about/이 다른 페이지로 인식되므로, 
+        중복 색인(indexing)을 막을 수 있어 검색 엔진 최적화(SEO)에 유리
+
 ---
 
 # 브라우저 탭 아이콘 (favicon)
