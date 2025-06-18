@@ -220,6 +220,78 @@ def about():
     - /about과 /about/이 다른 페이지로 인식되므로, 
         중복 색인(indexing)을 막을 수 있어 검색 엔진 최적화(SEO)에 유리
 
+## URL 생성
+- 특정 함수에 대한 URL을 생성하려면 url_for() 함수를 사용
+    - 첫 번째 인자로 함수의 이름을 받고, 
+        URL 규칙의 변수 부분 각각에 대응하는 여러 개의 키워드 인자를 받을 수 있음
+    - 알려지지 않은(정의되지 않은) 변수 부분들은 URL에 쿼리 파라미터로 추가
+- URL을 하드코딩하는 대신, URL 역방향 함수인 url_for()를 사용하는 이유
+    - 역방향 생성(reversing)은 종종 URL을 하드코딩하는 것보다 더 명확
+    - 하드코딩된 URL을 수동으로 변경해야 하는 것을 기억할 필요 없이, URL을 한 번에 바꿀 수 있음
+    - URL 생성은 특수 문자의 이스케이핑을 자동으로 처리
+    - 생성된 경로는 항상 절대 경로이며, 브라우저에서의 상대 경로로 인한 예기치 않은 동작을 피함
+    - 애플리케이션이 URL 루트(/)가 아닌 /myapplication 같은 경로에 위치해 있다면, 
+        url_for()는 그것을 적절히 처리
+```
+from flask import url_for
+
+@app.route('/')
+def index():
+    return 'index'
+
+@app.route('/login')
+def login():
+    return 'login'
+
+@app.route('/user/<username>')
+def profile(username):
+    return f'{username}\'s profile'
+
+with app.test_request_context():
+    print(url_for('index'))    // /
+    print(url_for('login'))    // /login
+    print(url_for('login', next='/'))    // /login?next=/
+    print(url_for('profile', username='John Doe'))    // /user/John%20Doe
+```
+- python의 `with` 문: 문맥 관리자(Context Manager) 를 사용하기 위한 문법
+    - 어떤 리소스(파일, 네트워크 연결, DB 등)를 열고 닫는 것을 자동으로 처리
+    - 전통적인 방식
+        ```
+        f = open('file.txt')
+        data = f.read()
+        f.close()  # → 파일을 꼭 닫아줘야 함
+        ```
+        - 실수로 f.close()를 안 쓰면
+             → 파일이 계속 열린 상태로 남아서 메모리 누수, 파일 잠금 문제 발생 가능
+    - with 방식
+        ```
+        with open('file.txt') as f:
+        data = f.read()
+        ```
+        - with는 블록이 끝나면 자동으로 f.close() 호출
+             → 더 안전하고 깔끔
+- app.test_request_context()란?
+    - Flask에서 제공하는 특수한 문맥 관리자
+    - Python 셸이나 테스트 환경에서 Flask에게 
+        “지금 웹 요청을 하나 받고 있다고 가정해라” 라고 말해주는 역할
+    - Flask의 url_for() 같은 함수는 요청 컨텍스트(request context) 내에서만 정상 작동
+    - 웹 요청이 없으면 내부 정보가 없어서 URL 생성도 안 됨
+    - test_request_context()를 쓰면 Flask가 마치 요청을 하나 받은 것처럼 행동
+- `url_for('index')`
+    - @app.route('/')에 연결된 index() 함수의 URL → '/'
+- `url_for('login')`
+    - @app.route('/login')에 연결된 login() 함수의 URL → '/login'
+- `url_for('login', next='/')`
+    - login 함수에 정의되지 않은 next는 쿼리 파라미터로 처리됨 → '/login?next=/'
+- `url_for('profile', username='John Doe')`
+    - `/user/<username>` 경로 → 'John%20Doe' (공백은 %20으로 인코딩됨)
+    - URL에서는 공백을 직접 쓸 수 없음
+    - 공백은 퍼센트 인코딩(percent encoding) 또는 URL 인코딩을 통해 `%20`으로 바뀜
+    - 추가적으로
+        - 공백, ! @, #, /, ? 가 각각 %20, %21, %40, %23, %2F, %3F 로 인코딩 됨
+        - 이 인코딩 방식은 ASCII 문자 코드에 기반해 각 문자를 16진수로 변환한 값
+    - url_for()는 이런 특수 문자들을 자동으로 인코딩하므로 'John%20Doe'의 결과가 나옴
+
 ---
 
 # 브라우저 탭 아이콘 (favicon)
