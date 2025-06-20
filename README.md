@@ -327,6 +327,19 @@ with app.test_request_context():
 
 ---
 
+# 정적 파일 (Static Files)
+- 정적(static) 파일은 내용이 바뀌지 않는 파일들을 칭함
+- ex: CSS, JavaScript, 이미지 파일, 폰트 등
+- Flask에서는 이 정적 파일들을 별도로 처리하는 방식을 제공
+- Flask 프로젝트 폴더에 static 폴더만 만들면, 그 안의 파일은 /static/파일이름 형태로 접근 가능
+- 정적 파일들에 대한 URL들을 생성하기 위해서는, 특별한 'static' 엔드포인트 이름을 사용
+    ```
+    url_for('static', filename='style.css')
+    ```
+    - 해당 파일은 파일 시스템 상에서 static/style.css로 저장되어 있어야 함
+
+---
+
 # 브라우저 탭 아이콘 (favicon)
 - 웹사이트를 브라우저에서 열었을 때 탭에 표시되는 작은 아이콘
 - `*.py`와 같은 파이썬 파일을 실행했을 때, favicon이 없으면 아래와 같은 에러가 발생
