@@ -292,6 +292,39 @@ with app.test_request_context():
         - 이 인코딩 방식은 ASCII 문자 코드에 기반해 각 문자를 16진수로 변환한 값
     - url_for()는 이런 특수 문자들을 자동으로 인코딩하므로 'John%20Doe'의 결과가 나옴
 
+## HTTP 메서드
+- 기본적으로, 라우트는 오직 GET 요청들에만 응답
+- 다른 HTTP 메서드들을 처리하기 위해 route() 데코레이터의 methods 인자를 사용 가능
+- 메서드들을 하나의 함수 안에 함께 사용
+    ```
+    from flask import request
+
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        if request.method == 'POST':
+            return do_the_login()
+        else:
+            return show_the_login_form()
+    ```
+    - GET과 POST 요청을 하나의 함수에서 처리하는 방식
+    - request.method를 통해 현재 요청이 POST인지 GET인지 구분하고, 각각에 대해 다른 로직을 실행
+- 서로 다른 메서드들에 대한 뷰들을 서로 다른 함수들로 분리
+    ```
+    @app.get('/login')
+    def login_get():
+        return show_the_login_form()
+
+    @app.post('/login')
+    def login_post():
+        return do_the_login()
+    ```
+    - GET과 POST 요청을 별도의 함수로 분리
+    - Flask 2.0 이후에는 `@app.get()`, `@app.post()` 같은 데코레이터가 제공되어 코드가 더 명확
+- 만약 어떤 라우트에서 GET 메서드를 정의하면, Flask는 자동으로 HEAD 메서드도 지원하도록 설정
+    - HEAD 요청이 들어오면, Flask는 본문 없이 응답 헤더만 반환하며, 이 동작은 HTTP 표준(RFC)에 따름
+- Flask는 자동으로 OPTIONS 메서드도 구현
+    - OPTIONS 요청이 들어오면, Flask는 해당 라우트에서 사용 가능한 HTTP 메서드 목록을 응답으로 제공
+
 ---
 
 # 브라우저 탭 아이콘 (favicon)
