@@ -340,6 +340,85 @@ with app.test_request_context():
 
 ---
 
+# 템플릿 렌더링
+- Flask는 HTML 코드 안에 사용자 입력을 넣을 때 보안 문제를 방지하기 위해 HTML을 이스케이프해야 함
+    - Flask는 그것을 간편하게 하기 위해 Jinja2 템플릿 엔진을 자동으로 구성해 줌
+- 템플릿은 모든 종류의 텍스트 기반 출력을 생성하는 데 사용 가능
+    - HTML, markdown, 이메일용 일반 텍스트 등
+- 템플릿을 렌더링(HTML로 변환)하기 위해서는 `render_template()` 메서드를 사용
+    - HTML 파일 이름과, 템플릿 안에서 사용할 변수들을 넘겨주면 됨
+    ```
+    from flask import render_template
+
+    @app.route('/hello/')
+    @app.route('/hello/<name>')
+    def hello(name=None):
+        return render_template('hello.html', person=name)
+    ```
+    - /hello/ 또는 /hello/이름으로 접속했을 때 hello.html이라는 템플릿을 렌더링
+    - 템플릿 안에서 사용할 변수 person에 name을 전달
+- Flask는 기본적으로 템플릿을 찾을 때 templates 폴더를 자동으로 탐색
+    - 모듈로 작성한 경우에는 .py 파일 옆에, 패키지로 구성한 경우에는 패키지 내부에 있어야 함
+    - 모듈 형태
+        ```
+        /application.py
+        /templates
+            /hello.html
+        ```
+    - 패키지 형태
+        ```
+        /application
+            /__init__.py
+            /templates
+                /hello.html
+        ```
+- Flask는 Jinja2 템플릿 엔진을 기반으로 작동하므로, 
+    Jinja2의 강력한 기능들(조건문, 반복문, 필터 등)을 자유롭게 사용 가능
+    ```
+    <!doctype html>
+    <title>Hello from Flask</title>
+    {% if person %}
+        <h1>Hello {{ person }}!</h1>
+    {% else %}
+        <h1>Hello, World!</h1>
+    {% endif %}
+    ```
+    - `{{ person }}`: 템플릿에 전달된 변수 값을 출력
+    - `{% if %}, {% else %}, {% endif %}`: Jinja2의 조건문 구문
+    - person이라는 변수가 존재하면 해당 이름으로 인사하고, 없으면 "Hello, World!"를 출력
+- 템플릿 안에서는 config, request, session, 그리고 g 객체들뿐만 아니라 
+    url_for() 함수와 get_flashed_messages() 함수에도 접근 가능
+    - config: Flask 설정에 접근
+    - request: 클라이언트의 요청 정보
+    - session: 사용자별 세션 정보
+    - g: 요청 중 임시로 저장할 수 있는 글로벌 공간
+        - "global"의 줄임말
+        - 하나의 요청 동안 임시로 데이터를 저장할 수 있는 객체
+    - url_for(): 라우팅된 URL을 생성
+    - get_flashed_messages(): flash 메시지를 가져오는 함수
+- 템플릿은 상속이 사용될 경우 특히 유용
+    - 여러 HTML 페이지에 공통으로 들어가는 부분(헤더, 푸터 등)을 매번 반복 작성하지 않고, 
+        기본 템플릿을 만들어 상속받는 구조로 효율적으로 관리 가능
+- Flask는 자동으로 HTML 이스케이핑을 해줌
+    - HTML이 정상적이고 안전한 것이라면 Markup 클래스나 |safe 필터를 사용하여 이스케이핑을 방지 가능
+    ```
+    from markupsafe import Markup
+
+    Markup('<strong>Hello %s!</strong>') % '<blink>hacker</blink>'
+    # 결과: Markup('<strong>Hello &lt;blink&gt;hacker&lt;/blink&gt;!</strong>')
+
+    Markup.escape('<blink>hacker</blink>')
+    # 결과: Markup('&lt;blink&gt;hacker&lt;/blink&gt;')
+
+    Markup('<em>Marked up</em> &raquo; HTML').striptags()
+    # 결과: 'Marked up » HTML'
+    ```
+    - Markup(...): 이 문자열을 안전한 HTML로 표시
+    - Markup.escape(...): 문자열을 HTML-safe 하게 이스케이프
+    - .striptags(): HTML 태그를 제거하고 텍스트만 남김
+
+---
+
 # 브라우저 탭 아이콘 (favicon)
 - 웹사이트를 브라우저에서 열었을 때 탭에 표시되는 작은 아이콘
 - `*.py`와 같은 파이썬 파일을 실행했을 때, favicon이 없으면 아래와 같은 에러가 발생
