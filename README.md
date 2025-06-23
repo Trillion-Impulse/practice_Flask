@@ -471,6 +471,42 @@ with app.test_request_context():
         존재하지 않는 키에 대해 request.args['key']로 바로 접근하면 KeyError가 발생하고 400 에러가 뜰 수 있음
         - 사용자 입장에서 이런 에러 페이지는 불편하게 느껴질 수 있기 때문에, get()을 통해 안전하게 접근하는 것을 권유
 
+## 파일 업로드
+- Flask에서는 클라이언트가 업로드한 파일을 쉽게 받을 수 있음
+    - HTML `<form>` 요소에 enctype="multipart/form-data"를 반드시 추가
+        - 이 설정이 없으면 브라우저는 파일을 서버로 보내지 않음
+- 간단한 사용 예
+    ```
+    from flask import request
+
+    @app.route('/upload', methods=['GET', 'POST'])
+    def upload_file():
+        if request.method == 'POST':
+            f = request.files['the_file']
+            f.save('/var/www/uploads/uploaded_file.txt')
+    ```
+    - 파일은 request.files라는 딕셔너리 속성에 저장됨
+        - 키는 `<input type="file" name="...">`의 name 값
+    - request.files['the_file']는 파일을 읽을 수 있는 객체(Python 파일 객체처럼 동작)를 반환
+        - 이 파일 객체는 save(path) 메서드를 제공하므로, 지정된 경로로 서버의 파일 시스템에 저장 가능
+    - /upload 경로에 POST 요청이 오면 the_file이라는 이름으로 전송된 파일을 /var/www/uploads/uploaded_file.txt 경로에 저장
+- 클라이언트가 보낸 파일 이름을 다룰 때 생기는 보안 문제
+    - file.filename은 클라이언트에서 업로드된 원래 파일 이름
+        - 하지만 이 값은 사용자가 임의로 조작할 수 있기 때문에 신뢰할 수 없음
+    - 따라서 filename을 저장 경로로 쓸 경우, 
+        반드시 werkzeug.utils의 secure_filename() 함수를 통해 안전한 파일 이름으로 바꿔야 함
+        - 이 함수는 특수 문자, 경로 문자 등을 제거하고 안전하게 만들어줌
+    ```
+    from werkzeug.utils import secure_filename
+
+    @app.route('/upload', methods=['GET', 'POST'])
+    def upload_file():
+        if request.method == 'POST':
+            file = request.files['the_file']
+            file.save(f"/var/www/uploads/{secure_filename(file.filename)}")
+    ```
+    - 사용자가 보낸 파일을 서버에 저장할 때 안전한 파일 이름으로 바꾸어 /var/www/uploads/ 경로에 저장
+
 ---
 
 # 브라우저 탭 아이콘 (favicon)
