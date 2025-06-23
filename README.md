@@ -427,6 +427,49 @@ with app.test_request_context():
     - Flask는 이 문제를 해결하기 위해 컨텍스트 로컬(context local) 이라는 개념을 사용
         - context local: 요청마다 분리된 컨텍스트에서 request 객체가 각각 독립적으로 작동하도록 해주는 기술
 
+## Request 객체
+- Flask의 request 객체는 클라이언트로부터 들어온 HTTP 요청 정보를 담고 있는 핵심 객체
+- Request 객체는 Flask의 공식 문서의 API 섹션에 문서화되어 있음
+- 일반적인 작업 예시
+    ```
+    from flask import request
+
+    @app.route('/login', methods=['POST', 'GET'])
+    def login():
+        error = None
+        if request.method == 'POST':
+            if valid_login(request.form['username'],
+                        request.form['password']):
+                return log_the_user_in(request.form['username'])
+            else:
+                error = 'Invalid username/password'
+        # the code below is executed if the request method
+        # was GET or the credentials were invalid
+        return render_template('login.html', error=error)
+    ```
+    - request 객체를 사용하려면 반드시 flask 모듈에서 import 해야 함
+    - 예시의 요청 메서드는 method 속성과 form 속성을 사용함으로써 이용 가능
+    - `request.method`: 현재 들어온 요청이 'GET'인지 'POST'인지를 문자열로 반환
+    - `request.form`: POST 또는 PUT 요청에서 넘어온 HTML 폼 데이터를 딕셔너리 형태로 접근할 수 있게 해줌
+    - POST 요청이면, 폼으로 제출된 username과 password를 꺼내어 로그인 검사
+    - 인증에 실패하면 에러 메시지를 띄우고, 성공하면 로그인 처리
+    - GET 요청일 경우 혹은 로그인 실패 시, 로그인 폼(login.html)을 렌더링
+    - 폼 속성 안에 키가 존재하지 않는다면 무슨 일이 발생할까?
+        - request.form['username']처럼 딕셔너리 방식으로 접근할 때, 
+            만약 'username'이라는 키가 존재하지 않으면 Python의 KeyError가 발생
+        - Flask에서는 이 경우 예외를 따로 처리하지 않으면 자동으로 HTTP 400 (Bad Request) 에러 페이지를 반환
+        - 따라서 대부분의 경우, 예외 처리를 하지 않아도 기본적인 안전 장치가 작동
+    - URL 안에 제출된 매개변수들(?key=value)에 접근하기 위해서는 args 속성을 사용 가능
+        - GET 요청에서 URL 끝에 붙는 쿼리스트링(예: /search?key=hello)은 request.args를 통해 접근
+        ```
+        searchword = request.args.get('key', '')
+        ```
+        - request.args는 ImmutableMultiDict 객체이며, 딕셔너리처럼 사용 가능
+        - get() 메서드를 사용하면 키가 없을 때 기본값을 설정 가능
+            - 위 예제에서는 'key'가 없으면 빈 문자열을 반환
+    - URL 쿼리스트링은 사용자가 직접 수정할 수 있으므로, 
+        존재하지 않는 키에 대해 request.args['key']로 바로 접근하면 KeyError가 발생하고 400 에러가 뜰 수 있음
+        - 사용자 입장에서 이런 에러 페이지는 불편하게 느껴질 수 있기 때문에, get()을 통해 안전하게 접근하는 것을 권유
 
 ---
 
