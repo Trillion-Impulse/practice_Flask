@@ -507,6 +507,44 @@ with app.test_request_context():
     ```
     - 사용자가 보낸 파일을 서버에 저장할 때 안전한 파일 이름으로 바꾸어 /var/www/uploads/ 경로에 저장
 
+## Cookies
+- cookies는 사용자의 브라우저에서 서버로 전송된 데이터를 저장하거나 가져오는 데 사용
+- `request.cookies`: 클라이언트가 보낸 쿠키들을 담고 있는 딕셔너리
+- `response.set_cookie`: 서버에서 클라이언트에게 쿠키를 설정할 때 사용
+- 보안을 위해, 민감한 데이터는 세션(Session)을 사용하는 것이 권장
+    - 세션은 쿠키 위에 암호화나 서명 등 보안 요소가 추가된 구조
+- Reading cookies
+    ```
+    from flask import request
+
+    @app.route('/')
+    def index():
+        username = request.cookies.get('username')
+        # use cookies.get(key) instead of cookies[key] to not get a
+        # KeyError if the cookie is missing.
+    ```
+    - `request.cookies.get('username')`는 
+        'username'이라는 이름의 쿠키가 존재하면 값을 반환하고, 없으면 None을 반환
+    - `request.cookies['username']`처럼 대괄호로 접근할 경우, 
+        해당 키가 없으면 KeyError가 발생하므로 .get()을 사용하는 것이 안전
+- Storing cookies
+    ```
+    from flask import make_response
+
+    @app.route('/')
+    def index():
+        resp = make_response(render_template(...))
+        resp.set_cookie('username', 'the username')
+        return resp
+    ```
+    - 쿠키는 응답(Response) 객체에 설정해야 하므로, 먼저 `make_response()`로 응답 객체를 생성
+    - 그런 다음 `set_cookie()`를 통해 'username'이라는 이름으로 값을 저장
+    - 마지막으로 이 응답 객체를 반환하여 클라이언트가 쿠키를 저장할 수 있도록 함
+- 일반적으로 Flask는 문자열을 반환하면 내부적으로 응답(Response) 객체로 변환해 줌
+    - 그러나 쿠키를 설정해야 하는 경우, 응답 객체를 직접 생성해야 하므로 make_response()를 사용
+- 보통 쿠키는 응답 객체가 만들어진 후 설정되지만, 응답 객체 없이도 쿠키를 설정해야 하는 경우
+    - Flask의 `after_request`, `before_request`, `teardown_request` 같은 콜백 시스템을 활용해 대응
+
 ---
 
 # 브라우저 탭 아이콘 (favicon)
