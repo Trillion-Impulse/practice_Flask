@@ -547,6 +547,43 @@ with app.test_request_context():
 
 ---
 
+# Redirects and Errors
+- `redirect()`: 사용자를 다른 엔드포인트(페이지나 라우트)로 보내는 데 사용
+    - redirect: 다른방향으로 전환
+- `abort()`: 특정 HTTP 에러 상태 코드를 응답하며 요청을 강제로 종료
+    - 예: 404, 401 등
+- 예
+    ```
+    from flask import abort, redirect, url_for
+
+    @app.route('/')
+    def index():
+        return redirect(url_for('login'))
+
+    @app.route('/login')
+    def login():
+        abort(401)
+        this_is_never_executed()
+    ```
+    - /로 접근하면 login이라는 이름의 함수(= 엔드포인트)로 리디렉션
+    - /login에서 401 에러를 발생시키므로, 그 이후 코드 (this_is_never_executed())는 실행되지 않음
+        - 401은 인증되지 않은 사용자에게 접근을 거부할 때 사용
+- Flask는 기본적으로 에러가 발생하면 아주 단순한(흑백의) 에러 페이지를 표시
+    - errorhandler(에러코드) 데코레이터를 사용하면, 해당 에러에 대한 사용자 정의 페이지를 만들 수 있음
+    ```
+    from flask import render_template
+
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return render_template('page_not_found.html'), 404
+    ```
+    - 404 에러 발생 시 'page_not_found.html'이라는 HTML 파일을 렌더링해서 사용자에게 보여줌
+    - 두 번째 인자로 404를 명시함으로써, 응답의 상태 코드가 200 OK가 아닌 404 Not Found로 설정
+    - render_template()만 반환하면 Flask는 정상 응답(200)을 보냈다고 간주
+    - 그래서 명시적으로 404 같은 에러 코드를 지정해 줘야 브라우저나 클라이언트가 정확하게 인식
+
+---
+
 # 브라우저 탭 아이콘 (favicon)
 - 웹사이트를 브라우저에서 열었을 때 탭에 표시되는 작은 아이콘
 - `*.py`와 같은 파이썬 파일을 실행했을 때, favicon이 없으면 아래와 같은 에러가 발생
