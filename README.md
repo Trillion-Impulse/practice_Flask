@@ -584,6 +584,50 @@ with app.test_request_context():
 
 ---
 
+# About Responses
+- Flask에서는 뷰 함수에서 값을 반환하면, Flask가 알아서 HTTP 응답 객체로 바꿔줌
+    - 문자열을 반환하면, HTML 페이지처럼 응답 본문으로 사용되고, 상태 코드 200이 자동으로 붙음
+    - 리스트나 딕셔너리를 반환하면, Flask가 jsonify() 함수를 호출해서 JSON 형태로 응답을 만들어 줌
+- Flask가 다양한 반환 형태에 따라 응답 객체를 생성하는 단계
+    - 응답 객체(flask.Response 등)를 직접 만들었다면, Flask는 그대로 반환
+    - 문자열이면, 해당 데이터를 사용하여 기본 파라미터로 응답 객체가 생성
+        - 문자열은 HTML 콘텐츠로 간주되며, 상태코드 200, MIME 타입 text/html이 적용
+    - 문자열이나 바이트를 반환하는 반복자 또는 제너레이터이면, 스트리밍 응답으로 처리 됨
+        - 데이터를 한 번에 보내는 대신, 점진적으로 전송하는 "스트리밍 방식" 응답으로 처리
+    - 딕셔너리나 리스트이면, jsonify()를 사용하여 응답 객체가 생성됨
+    - 튜플이 반환되면, 튜플 안의 항목들이 추가 정보를 제공할 수 있음
+        - 튜플은 (response, status), (response, headers), 또는 (response, status, headers) 형태여야 함
+        - 상태(status) 값은 상태 코드를 덮어쓰며, 헤더는 추가적인 헤더 값을 담은 리스트나 딕셔너리가 될 수 있음
+        - 뷰 함수에서 튜플을 사용하면 상태 코드나 헤더 값을 직접 설정 가능
+    - 위의 어떤 것도 적용되지 않으면, Flask는 반환 값이 유효한 WSGI 애플리케이션이라고 가정하고 그것을 응답 객체로 변환
+- 뷰 내부에서 생성된 응답 객체를 직접 다루고 싶다면, make_response() 함수를 사용
+    - 예: 헤더를 추가하고 싶은 경우
+    - 기본 반환 방식 대신 명시적으로 응답 객체를 생성할 수 있게 해줌
+    ```
+    from flask import render_template
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template('error.html'), 404
+    ```
+    - 404 에러가 발생했을 때 error.html 템플릿을 렌더링하고, 상태 코드를 404로 설정하여 응답
+    - (response, status) 형태의 튜플을 반환하는 예시
+    ```
+    from flask import make_response
+
+    @app.errorhandler(404)
+    def not_found(error):
+        resp = make_response(render_template('error.html'), 404)
+        resp.headers['X-Something'] = 'A value'
+        return resp
+    ```
+    - make_response()로 반환 표현식을 감싸고, 응답 객체를 얻은 뒤 수정한 다음 반환하면 됨
+    - 이 예제는 응답 객체에 직접 헤더를 추가하는 방법을 보여줌
+    - make_response()를 사용하면 응답 객체에 자유롭게 접근할 수 있어, 
+        커스텀 헤더를 추가하거나 쿠키를 설정하는 등 다양한 조작이 가능
+
+---
+
 # 브라우저 탭 아이콘 (favicon)
 - 웹사이트를 브라우저에서 열었을 때 탭에 표시되는 작은 아이콘
 - `*.py`와 같은 파이썬 파일을 실행했을 때, favicon이 없으면 아래와 같은 에러가 발생
