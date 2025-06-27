@@ -626,6 +626,40 @@ with app.test_request_context():
     - make_response()를 사용하면 응답 객체에 자유롭게 접근할 수 있어, 
         커스텀 헤더를 추가하거나 쿠키를 설정하는 등 다양한 조작이 가능
 
+## APIs with JSON
+- API를 작성할 때의 흔한 응답 형식은 JSON
+    - Flask에서는 API를 만들 때, 
+        dict(딕셔너리)나 list(리스트) 형태의 값을 리턴하면 Flask가 자동으로 이를 JSON으로 변환
+    - 별도로 jsonify()를 호출하지 않아도, Flask가 내부적으로 변환 작업을 처리
+- 예
+    ```
+    @app.route("/me")
+    def me_api():
+        user = get_current_user()
+        return {
+            "username": user.username,
+            "theme": user.theme,
+            "image": url_for("user_image", filename=user.image),
+        }
+
+    @app.route("/users")
+    def users_api():
+        users = get_all_users()
+        return [user.to_json() for user in users]
+    ```
+    - `user.to_json()`은 커스텀 메서드로, 사용자 객체를 JSON 직렬화 가능한 형태로 변환
+        - 보통 데이터베이스 모델(예: SQLAlchemy 모델)은 바로 JSON으로 변환할 수 없음
+        - 그래서 .to_json() 같은 커스텀 메서드를 정의
+            - 예를 들면 return {"id": self.id, "name": self.name} 같은 식
+            - JSON 직렬화가 가능한 형태로 바꿔줍
+- 반환하려는 데이터가 단순한 자료형이 아니라 클래스 인스턴스(예: SQLAlchemy 모델)인 경우, 
+    해당 데이터를 JSON으로 직렬화할 수 있도록 직접 변환해 주어야 함
+- `JSON 직렬화 가능(JSON serializable)`하다는 것은, 숫자, 문자열, 불린값, 리스트, 딕셔너리 등 기본 자료형만 포함되어야 한다는 뜻
+    - 예: datetime, set, 사용자 정의 클래스 같은 것은 JSON 직렬화가 불가능하므로 추가 작업이 필요
+- SQLAlchemy 모델, 사용자 정의 객체 등은 JSON으로 바로 변환할 수 없기 때문에 직렬화 도구가 필요
+    - marshmallow, pydantic, Flask-RESTful, Flask-Marshmallow 등 
+        라이브러리는 모델을 JSON으로 자동 변환하거나 필드 유효성 검사, 중첩 구조 표현 등을 도와줌
+
 ---
 
 # 브라우저 탭 아이콘 (favicon)
