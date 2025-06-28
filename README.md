@@ -722,6 +722,17 @@ with app.test_request_context():
             - Flask-Session, Flask-KVSession, Flask-Redis, Flask-SQLAlchemy 등
             - 이런 확장 기능은 세션 데이터를 서버의 메모리, 데이터베이스, 파일, Redis 등 다양한 저장소에 저장하게 해 줌
 
+## 좋은 비밀 키를 생성하는 방법
+- 보안을 위해 secret_key는 예측 불가능하고 충분히 무작위(random)적이어야 함
+- 운영체제는 보통 secrets 같은 암호학적으로 안전한(random secure) 라이브러리를 통해 난수를 생성 가능
+- Flask에서 이 키는 세션 데이터의 무결성을 보호하는 데 사용되므로, 
+    단순한 문자열이나 사람이 만든 값보다 보안 수준이 높은 난수를 사용해야 함
+- 32바이트 길이의 난수를 16진수(hex) 문자열로 출력
+    ```
+    $ python -c 'import secrets; print(secrets.token_hex())'
+    ```
+    - 이 값을 그대로 Flask의 app.secret_key에 복사해서 사용
+
 ---
 
 # 브라우저 탭 아이콘 (favicon)
