@@ -662,6 +662,68 @@ with app.test_request_context():
 
 ---
 
+# Sessions
+- Flask에서는 사용자의 요청(request) 외에도, 사용자별 정보를 여러 요청 사이에 유지할 수 있도록 session이라는 객체를 제공
+    - 예를 들어 사용자가 로그인했는지를 기억하는 데 사용
+- Flask의 세션은 HTTP 쿠키(cookie) 를 사용하여 작동
+    - 일반 쿠키와 달리 암호 서명을 하여 보안성을 높임
+    - 쿠키는 사용자 브라우저에 저장되지만, 그 내용이 변경되지 않았음을 Flask가 확인할 수 있게 되어 있음
+- 세션 정보는 사용자의 브라우저에 저장되므로 내용을 볼 수는 있지만, Flask는 암호 서명을 통해 위변조를 방지
+    - 비밀 키(secret key) 를 모르면 쿠키 값을 바꿔도 Flask가 그것을 거부
+- session을 사용하기 전에, Flask 앱에 secret_key 값을 설정해야 함
+    - 이 키는 쿠키 서명에 사용되며, 외부에 유출되면 안 됨
+- 예
+    ```
+    from flask import session
+
+    # Set the secret key to some random bytes. Keep this really secret!
+    app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+    @app.route('/')
+    def index():
+        if 'username' in session:
+            return f'Logged in as {session["username"]}'
+        return 'You are not logged in'
+
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        if request.method == 'POST':
+            session['username'] = request.form['username']
+            return redirect(url_for('index'))
+        return '''
+            <form method="post">
+                <p><input type=text name=username>
+                <p><input type=submit value=Login>
+            </form>
+        '''
+
+    @app.route('/logout')
+    def logout():
+        # remove the username from the session if it's there
+        session.pop('username', None)
+        return redirect(url_for('index'))
+    ```
+    - `app.secret_key`: 서명을 만들 때 사용하는 키
+    - session['username'] = ... 이 실행되면:
+        - Flask는 이 데이터를 JSON 형태로 직렬화한 뒤
+        - secret_key로 서명하고
+        - 서명된 데이터를 쿠키로 브라우저에 보냄
+        - 이후 브라우저가 다시 요청을 보낼 때, Flask는 쿠키 안의 세션 데이터를 secret_key로 검증
+            - 서명이 맞지 않으면 세션은 무효 처리
+    - secret_key가 변경되면 이전에 저장된 세션 쿠키는 더 이상 유효하지 않게 됨
+        - 따라서 서버를 재시작할 때마다 secret_key를 바꾸지 않도록, 환경 변수나 설정 파일을 통해 고정된 값을 사용
+- 쿠키 기반 세션에 대한 주의사항
+    - Flask의 기본 세션은 클라이언트 측 쿠키에 저장되며, session[...]에 넣은 값들이 모두 쿠키 안에 담김
+    - 브라우저는 일반적으로 쿠키 크기 제한이 있으며(보통 4KB), 이를 초과하면 데이터가 잘리거나 무시될 수 있음
+    - 세션 값이 저장되지 않거나 갑자기 사라지는 문제가 생긴다면, 쿠키 용량 초과가 원인일 수 있음
+- 기본적으로 Flask는 세션을 클라이언트(사용자 브라우저)의 쿠키에 저장
+    - 더 복잡하거나 안전한 세션 관리가 필요할 경우, 서버 측 저장 방식을 선택 가능
+        - 이를 위해 Flask는 다음과 같은 확장 기능들을 제공
+            - Flask-Session, Flask-KVSession, Flask-Redis, Flask-SQLAlchemy 등
+            - 이런 확장 기능은 세션 데이터를 서버의 메모리, 데이터베이스, 파일, Redis 등 다양한 저장소에 저장하게 해 줌
+
+---
+
 # 브라우저 탭 아이콘 (favicon)
 - 웹사이트를 브라우저에서 열었을 때 탭에 표시되는 작은 아이콘
 - `*.py`와 같은 파이썬 파일을 실행했을 때, favicon이 없으면 아래와 같은 에러가 발생
