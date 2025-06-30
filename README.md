@@ -778,6 +778,25 @@ with app.test_request_context():
 
 ---
 
+# Hooking in WSGI Middleware
+- WSGI(Web Server Gateway Interface): Python 웹 애플리케이션과 서버 사이의 표준 인터페이스
+- 미들웨어는 이 인터페이스를 통해 요청과 응답을 가로채서 처리할 수 있는 컴포넌트
+- 예: ProxyFix, WhiteNoise, SessionMiddleware 등
+- 예를 들어, Nginx 뒤에서 실행하기 위해 Werkzeug의 ProxyFix 미들웨어를 적용하는 방법
+    ```
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app)
+    ```
+    - app.wsgi_app은 Flask 애플리케이션의 WSGI 레벨 진입점
+    - 여기에 ProxyFix 같은 미들웨어를 감싸면, Flask가 받는 요청 전에 미들웨어가 먼저 개입 가능
+    - 이 방식은 Flask의 핵심 기능에는 영향을 주지 않으며, 요청 처리 방식만 보완
+- app이 아니라 app.wsgi_app을 감싸는 이유
+    - app을 감싸면 Flask 인스턴스 자체가 바뀌게 되어 예기치 못한 부작용이 생길 가능성 존재
+    - 대신 app.wsgi_app만 바꾸면, app 객체는 그대로 유지되면서, WSGI 요청 처리 체인에만 영향을 줌
+    - 이렇게 하면 여전히 app.route(), app.config 등 Flask 기능을 그대로 사용 가능
+
+---
+
 # 브라우저 탭 아이콘 (favicon)
 - 웹사이트를 브라우저에서 열었을 때 탭에 표시되는 작은 아이콘
 - `*.py`와 같은 파이썬 파일을 실행했을 때, favicon이 없으면 아래와 같은 에러가 발생
