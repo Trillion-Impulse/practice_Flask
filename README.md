@@ -752,6 +752,32 @@ with app.test_request_context():
 
 ---
 
+# Logging
+- 때때로 클라이언트로부터 오는 데이터는 정상이어야 마땅하지만 실제로는 잘못된 경우가 존재
+    - 예를 들어, HTTP 요청이 형식상 문제가 있는 경우
+- 이런 문제는 사용자가 악의적으로 데이터를 수정했거나, 클라이언트 코드에 버그가 있는 경우 발생 가능
+- 일반적으로는 이런 경우에 400 Bad Request(잘못된 요청) 응답을 보내면 충분
+    - 때때로 그것은 충분하지 않을 수 있고 코드가 계속 작동해야 할 경우가 존재
+- 비정상적인 상황을 기록(로그) 하고 싶은 경우, Flask의 로거 기능이 매우 유용
+    - Flask에서는 버전 0.3부터 기본적으로 로거가 준비되어 있기 때문에 별다른 설정 없이 바로 사용 가능
+- 로그 호출 예
+    ```
+    app.logger.debug('A value for debugging')
+    app.logger.warning('A warning occurred (%d apples)', 42)
+    app.logger.error('An error occurred')
+    ```
+    - app.logger.debug(...) : 디버깅 용도의 로그
+        - 개발 단계에서 주로 사용
+    - app.logger.warning(...) : 경고 수준의 로그
+        - 심각하진 않지만 주의가 필요한 상황에서 사용
+    - app.logger.error(...) : 오류 수준의 로그
+        - 예외나 실패 상황에서 사용
+- Flask에서 기본으로 제공하는 app.logger는 Python 표준 라이브러리인 logging 모듈을 기반으로 한 것
+    - 따라서 logging 모듈의 기능, 사용법, 로그 레벨 설정, 출력 포맷 지정 등을 그대로 사용 가능
+    - 더 자세한 내용은 Python 공식 문서의 logging 부분을 참고
+
+---
+
 # 브라우저 탭 아이콘 (favicon)
 - 웹사이트를 브라우저에서 열었을 때 탭에 표시되는 작은 아이콘
 - `*.py`와 같은 파이썬 파일을 실행했을 때, favicon이 없으면 아래와 같은 에러가 발생
