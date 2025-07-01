@@ -797,6 +797,17 @@ with app.test_request_context():
 
 ---
 
+# Flask Extensions 사용
+- Flask 확장(Extensions) 은 Flask의 핵심 기능 외에 필요한 기능들을 추가해주는 외부 라이브러리
+    - 예: 데이터베이스 연결, 사용자 인증, 폼 처리, 이메일 전송 등
+- Flask 확장은 보통 pip로 설치해서 사용하는 외부 패키지
+    - 패키지(packages): 여러 모듈을 묶은 Python의 배포 단위
+- 예를들어 Flask-SQLAlchemy 는 Flask에서 데이터베이스를 손쉽게 다룰 수 있게 해주는 확장
+    - 내부적으로는 SQLAlchemy라는 유명한 ORM(Object Relational Mapper)을 사용
+    - 복잡한 SQL을 작성하지 않고도 Python 코드로 데이터베이스를 다룰 수 있음
+
+---
+
 # 브라우저 탭 아이콘 (favicon)
 - 웹사이트를 브라우저에서 열었을 때 탭에 표시되는 작은 아이콘
 - `*.py`와 같은 파이썬 파일을 실행했을 때, favicon이 없으면 아래와 같은 에러가 발생
