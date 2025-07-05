@@ -105,8 +105,12 @@
             ```
             python -m flask --app hello run
             ```
+            - `python -m flask`: Python 표준 방식으로 flask 모듈을 실행
             - `-m`: 모듈 실행을 의미
+            - Python은 flask라는 모듈(패키지)을 찾아서 그 안의 CLI(Command Line Interface)를 실행
             - **flask 명령어가 PATH에 없어도 동작함**
+            - flask 명령어가 시스템에 등록되지 않았을 수도 있으니, Python을 통해 직접 실행하는 방식
+            - OS나 환경에 따라 flask 명령이 제대로 작동하지 않을 때 확실한 방법
             - 특히 가상환경 내에서 안정적으로 실행 가능
 
 ---
