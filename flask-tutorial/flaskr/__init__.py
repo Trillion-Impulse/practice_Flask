@@ -71,6 +71,12 @@ def create_app(test_config=None):
     def hello():
         return 'Hello, World!'
 
+    # from . import db를 통해 db.py 모듈을 가져오고, 
+    # 그 안에 정의된 init_app(app) 함수를 호출
+    # close_db, init_db_command를 Flask 애플리케이션에 연결
+    from . import db
+    db.init_app(app)
+
     # app을 반환
     # 모든 설정이 끝난 Flask 애플리케이션 인스턴스를 반환
     # 이 객체가 실행 주체가 됨
