@@ -104,3 +104,17 @@ sqlite3.register_converter(
 # 결과: datetime.datetime(2025, 7, 7, 10, 0, 0)
 # 설정이 작동하려면, sqlite3.connect() 호출 시
 # detect_types=sqlite3.PARSE_DECLTYPES 옵션이 있어야 함
+
+# Flask에서는 close_db와 init_db_command 같은 함수들이 애플리케이션 인스턴스에 등록되어야만 제대로 동작
+# 하지만 현재 create_app()이라는 팩토리 함수를 사용 중
+# 토리 함수는 애플리케이션 인스턴스를 생성하는 함수이기 때문에, 
+# close_db와 같은 함수가 작성될 시점에는 애플리케이션 객체가 아직 존재하지 않음
+# 따라서, close_db와 init_db_command를 나중에 app 인스턴스를 전달받아 등록하는 방식으로 처리하는 함수 init_app을 만듬
+def init_app(app):
+    # app.teardown_appcontext(close_db)는 요청이 끝난 후, 
+    # 리소스를 정리하는 시점에 Flask가 close_db 함수를 자동으로 호출하도록 등록
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
+    # app.cli.add_command(init_db_command)는 Flask의 커맨드라인 명령어 (flask)에 
+    # 새로운 명령어 (init-db 등)를 추가하는 역할
+    # 이렇게 하면 터미널에서 직접 flask init-db 같은 명령을 실행 가능
