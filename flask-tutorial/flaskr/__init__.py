@@ -77,6 +77,12 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
+    # from . import auth를 통해 auth.py 모듈(Blueprint)을 가져옴
+    # app.register_blueprint() → 이 블루프린트를 실제 Flask 앱에 연결
+    # auth.bp → auth.py 안에서 만든 Blueprint 객체
+    from . import auth
+    app.register_blueprint(auth.bp)
+
     # app을 반환
     # 모든 설정이 끝난 Flask 애플리케이션 인스턴스를 반환
     # 이 객체가 실행 주체가 됨
