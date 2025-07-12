@@ -75,27 +75,51 @@ def register(): # register 뷰 함수 정의
     # GET 요청(처음 방문) 또는 유효성 검사 실패 후에는 폼 화면을 다시 보여줘야 합
     # render_template()는 Flask에서 HTML 파일을 로드하고 사용자에게 보여주는 함수
 
+# 데코레이터 @bp.route는 URL /login를 login 뷰 함수와 연결
+# Blueprint 객체인 bp를 사용하므로 실제 경로는 /auth/login 임
 @bp.route('/login', methods=('GET', 'POST'))
-def login():
-    if request.method == 'POST':
+def login(): # login 뷰 함수 정의
+    if request.method == 'POST': # 요청이 POST인 경우 (폼을 제출한 경우)
         username = request.form['username']
         password = request.form['password']
+        
         db = get_db()
         error = None
+
+        # 데이터베이스에서 사용자 정보를 먼저 가져오고, 이후에 비밀번호 확인 등 검증에 사용
         user = db.execute(
             'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
+            # 데이터베이스에서 username이 일치하는 사용자를 검색
+        ).fetchone() # fetchone()은 결과가 없으면 None, 있으면 첫 번째 행을 반환
+        # fetchone()은 쿼리에서 한 행을 반환
+        # 쿼리가 결과를 반환하지 않으면, None을 반환
 
         if user is None:
             error = 'Incorrect username.'
         elif not check_password_hash(user['password'], password):
+            # check_password_hash()는 제출된 비밀번호를 저장된 해시와 동일한 방식으로 해싱하고, 이를 안전하게 비교
+            # 만약 일치한다면, 비밀번호는 유효
+            # not이므로 일치하지 않으면 에러 메시지를 설정
             error = 'Incorrect password.'
 
-        if error is None:
-            session.clear()
-            session['user_id'] = user['id']
-            return redirect(url_for('index'))
+        if error is None: # 에러가 없다면 (= 로그인 성공 시)
+            # session은 요청 사이에 데이터를 저장하는 딕셔너리
+            # session 딕셔너리를 사용하면 로그인 상태나 사용자 정보를 안전하게 유지 가능
+            session.clear() # session.clear()로 이전 세션 데이터를 지움
+            session['user_id'] = user['id'] # 현재 로그인한 사용자의 id를 세션에 저장
+            # 이 데이터는 브라우저로 전송되는 쿠키에 저장되고, 이후의 요청들에서 브라우저가 이를 다시 보냄
+            # Flask는 로그인 정보를 브라우저 쿠키에 저장하지만, 이를 암호화된 서명으로 보호
+                # 1. 사용자가 로그인 정보를 입력하여 로그인 요청을 보냄 (POST)
+                # 2. 서버가 로그인 정보 검증 후 사용자 ID를 session에 저장
+                # 3. Flask가 session 내용을 서명(signed)된 쿠키로 만들어 브라우저에게 전송
+                # 4. 브라우저가 이 쿠키를 저장
+                # 5. 이후 요청마다 브라우저는 자동으로 쿠키를 서버에 전송
+                # 6. 서버는 쿠키에서 세션 정보를 읽어 로그인 상태를 확인
+
+            return redirect(url_for('index')) # 이후 url_for('index')로 리디렉션 (index 뷰로 이동)
 
         flash(error)
 
     return render_template('auth/login.html')
+    # GET 요청일 경우 또는 로그인 실패 시
+    # auth/login.html 템플릿을 렌더링하여 로그인 폼을 보여줌
