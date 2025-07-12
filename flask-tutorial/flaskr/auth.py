@@ -74,3 +74,28 @@ def register(): # register 뷰 함수 정의
     # 사용자가 처음으로 /auth/register에 접속하거나 검증 오류가 있을 경우 등록 폼 HTML 반환
     # GET 요청(처음 방문) 또는 유효성 검사 실패 후에는 폼 화면을 다시 보여줘야 합
     # render_template()는 Flask에서 HTML 파일을 로드하고 사용자에게 보여주는 함수
+
+@bp.route('/login', methods=('GET', 'POST'))
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        db = get_db()
+        error = None
+        user = db.execute(
+            'SELECT * FROM user WHERE username = ?', (username,)
+        ).fetchone()
+
+        if user is None:
+            error = 'Incorrect username.'
+        elif not check_password_hash(user['password'], password):
+            error = 'Incorrect password.'
+
+        if error is None:
+            session.clear()
+            session['user_id'] = user['id']
+            return redirect(url_for('index'))
+
+        flash(error)
+
+    return render_template('auth/login.html')
