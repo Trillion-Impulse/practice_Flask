@@ -123,3 +123,14 @@ def login(): # login 뷰 함수 정의
     return render_template('auth/login.html')
     # GET 요청일 경우 또는 로그인 실패 시
     # auth/login.html 템플릿을 렌더링하여 로그인 폼을 보여줌
+
+@bp.before_app_request
+def load_logged_in_user():
+    user_id = session.get('user_id')
+
+    if user_id is None:
+        g.user = None
+    else:
+        g.user = get_db().execute(
+            'SELECT * FROM user WHERE id = ?', (user_id,)
+        ).fetchone()
