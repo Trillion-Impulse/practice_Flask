@@ -143,8 +143,13 @@ def load_logged_in_user(): # 이 함수는 사용자 정보를 로드하여 g �
         # 그 정보를 Flask의 전역 객체인 g.user에 저장
         # g 객체는 Flask의 각 요청마다 새로 생성되며, 해당 요청 동안만 유지
 
+# 데코레이터 @bp.route는 URL /logout을 logout 뷰 함수와 연결
+# Blueprint 객체인 bp를 사용하므로 실제 경로는 /auth/logout 임
+@bp.route('/logout') # /logout이라는 URL 경로로 요청이 들어올 경우 실행할 뷰 함수를 등록
+def logout(): # logout 뷰 함수 정의
+    session.clear() # session.clear()로 user_id를 포함한 모든 세션 정보가 삭제
+    # 사용자는 더 이상 로그인 상태가 아니게 됨
 
-@bp.route('/logout')
-def logout():
-    session.clear()
     return redirect(url_for('index'))
+    # 로그아웃이 완료된 후, index라는 이름의 뷰 함수를 찾아 사용자를 그 URL로 리디렉션
+    # 사용자에게 로그아웃 후 메인 페이지를 보여 줌
