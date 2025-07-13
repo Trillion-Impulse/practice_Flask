@@ -142,3 +142,9 @@ def load_logged_in_user(): # 이 함수는 사용자 정보를 로드하여 g �
         ).fetchone() # fetchone()으로 결과 하나를 가져옴
         # 그 정보를 Flask의 전역 객체인 g.user에 저장
         # g 객체는 Flask의 각 요청마다 새로 생성되며, 해당 요청 동안만 유지
+
+
+@bp.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
