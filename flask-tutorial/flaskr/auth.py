@@ -124,13 +124,21 @@ def login(): # login 뷰 함수 정의
     # GET 요청일 경우 또는 로그인 실패 시
     # auth/login.html 템플릿을 렌더링하여 로그인 폼을 보여줌
 
+# @bp.before_app_request는 어떤 URL이 요청되었는지에 상관없이, 뷰 함수가 실행되기 전에 실행되는 함수를 등록
+# 즉, 이 데코레이터 아래 정의된 함수는 모든 요청마다, 그리고 뷰 함수가 실행되기 전에 호출
 @bp.before_app_request
-def load_logged_in_user():
+def load_logged_in_user(): # 이 함수는 사용자 정보를 로드하여 g 객체에 저장
     user_id = session.get('user_id')
+    # 세션에서 user_id 키의 값을 가져옴
 
-    if user_id is None:
+    if user_id is None: # 세션에 사용자 id가 저장되어 있는지 확인
         g.user = None
-    else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
+        # 로그인하지 않았거나, 잘못된 ID가 세션에 저장되어 있다면 사용자 정보가 불러와지지 않음
+        # g.user는 None 상태로 유지
+        # 이로써 나중에 어떤 뷰에서든 g.user가 None이면 로그인하지 않았다는 걸 쉽게 알 수 있음
+    else: # 세션에 유효한 user_id가 있다면
+        g.user = get_db().execute( # get_db() 함수로 데이터베이스 연결을 가져옴
+            'SELECT * FROM user WHERE id = ?', (user_id,) # 사용자 테이블에서 해당 id의 사용자를 조회
+        ).fetchone() # fetchone()으로 결과 하나를 가져옴
+        # 그 정보를 Flask의 전역 객체인 g.user에 저장
+        # g 객체는 Flask의 각 요청마다 새로 생성되며, 해당 요청 동안만 유지
