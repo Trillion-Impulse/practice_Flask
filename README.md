@@ -225,10 +225,16 @@ def about():
         중복 색인(indexing)을 막을 수 있어 검색 엔진 최적화(SEO)에 유리
 
 ## URL 생성
-- 특정 함수에 대한 URL을 생성하려면 url_for() 함수를 사용
+- 특정 뷰(함수)에 대한 URL 경로를 생성하려면 url_for() 함수를 사용
     - 첫 번째 인자로 함수의 이름을 받고, 
         URL 규칙의 변수 부분 각각에 대응하는 여러 개의 키워드 인자를 받을 수 있음
     - 알려지지 않은(정의되지 않은) 변수 부분들은 URL에 쿼리 파라미터로 추가
+    - 뷰와 연결된 이 이름을 엔드포인트(endpoint)라고도 부름
+        - 기본적으로 엔드포인트는 뷰 함수의 이름과 동일
+    - Flask는 뷰 함수 이름을 엔드포인트로 등록하지만, 실제로 어떤 URL로 응답할지는 route 경로 문자열로 결정
+        - Flask에서 URL 경로는 @app.route()가 결정
+        - url_for()는 함수 이름(엔드포인트) 으로 등록된 URL 경로를 찾아 줌
+        - URL 경로는 함수 이름과 관계없고, @app.route(...)의 경로 문자열로 결정
 - URL을 하드코딩하는 대신, URL 역방향 함수인 url_for()를 사용하는 이유
     - 역방향 생성(reversing)은 종종 URL을 하드코딩하는 것보다 더 명확
     - 하드코딩된 URL을 수동으로 변경해야 하는 것을 기억할 필요 없이, URL을 한 번에 바꿀 수 있음
@@ -247,8 +253,8 @@ def index():
 def login():
     return 'login'
 
-@app.route('/user/<username>')
-def profile(username):
+@app.route('/user/<username>')  // url_for를 사용했을 때 응답할 경로
+def profile(username):  // profile이 뷰 함수의 이름 (=엔드포인트)
     return f'{username}\'s profile'
 
 with app.test_request_context():
