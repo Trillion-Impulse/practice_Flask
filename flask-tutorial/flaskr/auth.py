@@ -155,12 +155,33 @@ def logout(): # logout 뷰 함수 정의
     # 사용자에게 로그아웃 후 메인 페이지를 보여 줌
 
 
-def login_required(view):
+def login_required(view): #login_required라는 데코레이터를 정의
+                            # @는 데코레이터를 사용할 때 붙이는 것
     @functools.wraps(view)
-    def wrapped_view(**kwargs):
+    # functools는 Python 표준 라이브러리 중 하나
+    # wraps는 functools 모듈 안에 있는 함수
+    # wraps는 데코레이터를 만들 때, 원래 함수의 정보(이름, docstring 등)를 새로운 함수에 복사하는 역할
+    # Python에서 함수를 데코레이터로 감싸면, 원래 함수의 이름, 주석, 모듈 정보가 사라짐
+    # 이렇게 되면 디버깅, 문서화, 테스트 등에서 문제가 생
+    # 여기서는 wrapped_view가 인자로 받은 원래의 뷰 함수인 view를 감쌈
+    # 여기서 인자로 받는 view는 create, update, delete 등이 될 것
+    # 이 전체를 정의한 login_required()는 데코레이터로 작동
+    def wrapped_view(**kwargs): # kwargs = keyword arguments
+                                # 파이썬 함수에 이름 있는 인자들을 넘길 때 사용되는 형식
+                                # 내부적으로는 딕셔너리 형태로 처리
+                                # 함수 정의에서 **kwargs를 쓰면, 함수가 호출될 때 넘겨진 모든 키워드 인자를 하나의 딕셔너리로 받음
+        # login_required는 여러 뷰 함수에 공통으로 적용되므로, 어떤 뷰 함수는 인자를 받을 수도 있고 아닐 수도 있음
+        # 따라서 **kwargs로 모든 경우를 유연하게 처리
+        # **kwargs에는 Flask가 뷰 함수에 전달해주는 URL 경로 변수 (route parameter) 가 들어감
         if g.user is None:
             return redirect(url_for('auth.login'))
+            # 로그인이 안 된 경우, auth.login이라는 라우트 이름으로 리디렉션
 
         return view(**kwargs)
+        # 로그인이 되어 있다면, 원래의 뷰 함수 view를 그대로 실행
+        # **kwargs는 URL에서 전달된 변수들
 
     return wrapped_view
+    # 최종적으로, 원래 뷰 대신 wrapped_view를 반환
+    # 즉, 이제 데코레이터가 적용된 뷰는 login_required 조건을 갖게 됨
+    # 예를 들어 create, update, delete 등
