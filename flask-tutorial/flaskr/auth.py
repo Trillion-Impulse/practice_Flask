@@ -153,3 +153,14 @@ def logout(): # logout 뷰 함수 정의
     return redirect(url_for('index'))
     # 로그아웃이 완료된 후, index라는 이름의 뷰 함수를 찾아 사용자를 그 URL로 리디렉션
     # 사용자에게 로그아웃 후 메인 페이지를 보여 줌
+
+
+def login_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None:
+            return redirect(url_for('auth.login'))
+
+        return view(**kwargs)
+
+    return wrapped_view
