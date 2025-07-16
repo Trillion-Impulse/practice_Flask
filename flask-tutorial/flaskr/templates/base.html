@@ -1,15 +1,15 @@
 <!doctype html>
-<!--{% block title %}은 브라우저의 탭과 창 제목에 표시될 제목을 변경-->
+{# {% block title %}은 브라우저의 탭과 창 제목에 표시될 제목을 변경 #}
 <title>{% block title %}{% endblock %} - Flaskr</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<!--url_for()는 자동으로 사용 가능, 뷰 함수 이름만으로 URL을 생성-->
+{# url_for()는 자동으로 사용 가능, 뷰 함수 이름만으로 URL을 생성 #}
 <nav>
   <h1>Flaskr</h1>
   <ul>
-    <!--
+    {# 
     g는 Flask의 전역 컨텍스트 객체
     템플릿 안에서도 별도 전달 없이 사용 가능
-    -->
+     #}
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
@@ -21,20 +21,20 @@
 </nav>
 <section class="content">
   <header>
-    <!--{% block header %}는 title과 비슷하지만, 페이지 내에서 표시될 제목을 변경-->
+    {# {% block header %}는 title과 비슷하지만, 페이지 내에서 표시될 제목을 변경 #}
     {% block header %}{% endblock %}
   </header>
-  <!--flash() 함수는 일시적인 메시지를 저장하는 데 사용하며, get_flashed_messages()를 통해 메세지를 출력-->
+  {# flash() 함수는 일시적인 메시지를 저장하는 데 사용하며, get_flashed_messages()를 통해 메세지를 출력 #}
   {% for message in get_flashed_messages() %}
     <div class="flash">{{ message }}</div>
   {% endfor %}
-  <!--{% block content %}는 각 페이지의 콘텐츠가 들어가는 곳-->
+  {# {% block content %}는 각 페이지의 콘텐츠가 들어가는 곳 #}
   {% block content %}{% endblock %}
 </section>
 
-<!--
+{# 
 {% block title %}, {% block header %}, {% block content %}
 이 세 개의 블록이 템플릿 상속의 핵심
 자식 템플릿에서 {% extends "base.html" %}로 base를 상속한 뒤,
 필요한 블록(title, header, content)만 덮어써서 사용
--->
+ #}
