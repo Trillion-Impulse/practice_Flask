@@ -1,15 +1,33 @@
 {% extends 'base.html' %}
+<!--base.html이라는 기본 레이아웃 템플릿을 상속받음-->
 
+<!--해당 템플릿의 특정 블록을 덮어쓰기 위해 {% block %} 태그를 사용-->
 {% block header %}
   <h1>{% block title %}Register{% endblock %}</h1>
 {% endblock %}
+<!--유용한 패턴: title 블록을 header 블록 안에 넣는 것
+이렇게 하면 브라우저 탭 제목(title), 페이지 상단의 제목(h1) 모두 같은 값을 공유하게 할 수 있음
+코드 중복 없이 제목을 재사용할 수 있어 유지보수가 편리
+브라우저의 탭 제목에는 Register라는 텍스트만 적용
+페이지 본문 제목영역인 header에는 Register라는 텍스트와 <h1>태그까지 적용-->
 
 {% block content %}
+<!--기본 템플릿에서 정의된 content 영역을 덮어쓰기 위해 사용
+웹 페이지 본문 내용을 여기에서 정의-->
   <form method="post">
+  <!--method="post"는 사용자가 입력한 정보를 HTTP POST 방식으로 서버에 전송
+  GET 방식은 URL에 데이터를 노출하지만, POST는 그렇지 않기 때문에 보안상 더 적절-->
     <label for="username">Username</label>
+    <!--username 입력창에 대한 라벨
+    for="username"은 아래의 input 요소의 id와 연결
+    라벨 클릭 시 해당 입력창으로 커서가 이동되므로 접근성 향상에도 기여-->
     <input name="username" id="username" required>
+    <!--required 속성은 HTML5에서 도입된 기능으로, 브라우저가 폼 제출 전에 빈 값 여부를 검사
+    구형 브라우저나 비정상적인 클라이언트는 이를 무시할 수 있으므로, 반드시 서버 측에서도 유효성 검사를 해야 함
+    required는 브라우저 차원에서 필수 입력 필드를 검사, 클라이언트 측 유효성 검사임-->
     <label for="password">Password</label>
     <input type="password" name="password" id="password" required>
+    <!--type="password"는 입력 시 텍스트가 ●●● 형태로 표시-->
     <input type="submit" value="Register">
   </form>
 {% endblock %}
