@@ -83,6 +83,11 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
+    
+    from . import blog
+    app.register_blueprint(blog.bp)
+    app.add_url_rule('/', endpoint='index')
+
     # app을 반환
     # 모든 설정이 끝난 Flask 애플리케이션 인스턴스를 반환
     # 이 객체가 실행 주체가 됨
