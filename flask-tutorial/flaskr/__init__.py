@@ -83,7 +83,18 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
-    
+    # from . import blog를 통해 현재 디렉토리에서 blog.py 모듈(Blueprint)을 가져옴
+    # app.register_blueprint(blog.bp) → blog.bp 블루프린트를 실제 Flask 앱에 등록
+    # app.add_url_rule('/', endpoint='index') → '/' 경로에 대해 'index'라는 엔드포인트 이름을 추가
+    # url_for('index') 호출 시 '/'로 이동하게 해줌
+    # 사실상 '/'를 blog.index에 연결해주는 역할
+    # blog.py 내에서 @bp.route('/')처럼 데코레이터 방식으로 라우트를 등록하는 방법과의 차이
+    # 데코레이터 방식은 블루프린트 내부에서 사용, 기능을 정의하는 용도
+    # app.add_url_rule()처럼 함수를 통해 수동으로 라우트를 등록하는 방식은
+    # 앱 인스턴스에서 직접 라우트를 추가하는데 사용, 
+    # 특정 엔드포인트 이름으로 직접 URL을 연결해주거나, 블루프린트 외부에서 URL을 추가하려고 쓸 때 사용
+    # 결과적으로 두 URL은 같은 뷰 함수를 참조함
+    # 일반적으로는 @bp.route()만으로 충분하지만, 특정 엔드포인트 명칭을 앱 전체에서 통일하려면 add_url_rule()을 사용
     from . import blog
     app.register_blueprint(blog.bp)
     app.add_url_rule('/', endpoint='index')
