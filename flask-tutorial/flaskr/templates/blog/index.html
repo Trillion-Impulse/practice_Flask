@@ -5,24 +5,34 @@
   {% if g.user %}
     <a class="action" href="{{ url_for('blog.create') }}">New</a>
   {% endif %}
+  {# 사용자가 로그인되어 있으면, "New"라는 텍스트가 있는 링크가 생성 #}
+  {# blog.create라는 이름의 뷰로 연결 #}
 {% endblock %}
 
 {% block content %}
-  {% for post in posts %}
-    <article class="post">
+  {% for post in posts %} {# posts라는 리스트를 순회하면서 각 post에 대해 HTML을 생성 #}
+                            {# 이 리스트는 render_template() 함수에서 전달된 값 #}
+    <article class="post"> {# 각 게시글을 하나의 <article> 요소로 감쌈 #}
+                            {# 시맨틱 HTML 구조로, 게시글이라는 의미를 명확히 함 #}
       <header>
         <div>
           <h1>{{ post['title'] }}</h1>
           <div class="about">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</div>
+          {# 작성 날짜. strftime('%Y-%m-%d')를 사용해 날짜 형식 지정 #}
         </div>
         {% if g.user['id'] == post['author_id'] %}
+        {# 로그인한 사용자의 ID와 게시글의 작성자 ID가 같으면 #}
           <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
+          {# "Edit"이라는 텍스트가 있는 링크가 표시 #}
+          {# blog.update 뷰로 이동하며, 해당 게시글 ID를 URL 인자로 넘김 #}
         {% endif %}
       </header>
       <p class="body">{{ post['body'] }}</p>
     </article>
-    {% if not loop.last %}
-      <hr>
+    {% if not loop.last %} {# loop.last는 Jinja의 for문 안에서 사용 가능한 특수 변수 #}
+                            {# loop.last가 False일 경우만 <hr> 태그를 출력 #}
+                            {# 게시글 사이사이에 선을 넣되, 마지막 게시글 뒤에는 넣지 않음 #}
+      <hr>                  {# horizontal rule , 수평으로 구분선을 그림 #}
     {% endif %}
   {% endfor %}
 {% endblock %}
