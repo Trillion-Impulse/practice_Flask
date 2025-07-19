@@ -14,3 +14,13 @@ bp = Blueprint('blog', __name__)
 # auth 블루프린트와는 달리, blog 블루프린트는 url_prefix가 없음
 # 따라서 url_prefix가 없기 때문에 blog의 index 뷰가 루트(/)에 위치
 # 이는 블로그 기능을 이 앱의 메인 기능으로 간주하기 때문에 최상위로 둔다는 뜻
+
+@bp.route('/')
+def index():
+    db = get_db()
+    posts = db.execute(
+        'SELECT p.id, title, body, created, author_id, username'
+        ' FROM post p JOIN user u ON p.author_id = u.id'
+        ' ORDER BY created DESC'
+    ).fetchall()
+    return render_template('blog/index.html', posts=posts)
