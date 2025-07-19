@@ -15,12 +15,19 @@ bp = Blueprint('blog', __name__)
 # 따라서 url_prefix가 없기 때문에 blog의 index 뷰가 루트(/)에 위치
 # 이는 블로그 기능을 이 앱의 메인 기능으로 간주하기 때문에 최상위로 둔다는 뜻
 
+# bp는 Blueprint 객체이며, / URL 경로로 접근하면 아래 함수를 실행
+# 블로그의 홈페이지(URL 루트 경로) 가 이 함수와 연결
 @bp.route('/')
-def index():
+def index(): # 위에서 연결한 라우트('/')에 해당하는 뷰 함수
+                # 브라우저에서 루트 URL(/)에 접속하면 이 index() 함수가 실행
     db = get_db()
-    posts = db.execute(
+    posts = db.execute( # 변수는 이후 템플릿에 넘겨줘서, HTML에서 게시글 목록을 출력할 때 사용
         'SELECT p.id, title, body, created, author_id, username'
         ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' ORDER BY created DESC'
-    ).fetchall()
+        ' ORDER BY created DESC' # 결과를 작성일자(created) 기준으로 내림차순 정렬
+                                # 가장 최근 글이 맨 위에 표시
+    ).fetchall() # SQL 쿼리를 실행한 결과를 전부 가져옴
+    # fetchall()은 리스트 형태로 결과를 반환하며, 각 항목은 하나의 게시글을 나타냄
     return render_template('blog/index.html', posts=posts)
+    # 'blog/index.html'이라는 템플릿 파일을 불러오고, posts 데이터를 넘겨줌
+    # 템플릿에서는 이 posts를 반복문 등으로 활용하여 화면에 게시글 목록을 출력
