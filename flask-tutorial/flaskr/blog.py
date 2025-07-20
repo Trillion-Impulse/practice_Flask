@@ -31,3 +31,28 @@ def index(): # 위에서 연결한 라우트('/')에 해당하는 뷰 함수
     return render_template('blog/index.html', posts=posts)
     # 'blog/index.html'이라는 템플릿 파일을 불러오고, posts 데이터를 넘겨줌
     # 템플릿에서는 이 posts를 반복문 등으로 활용하여 화면에 게시글 목록을 출력
+
+@bp.route('/create', methods=('GET', 'POST'))
+@login_required
+def create():
+    if request.method == 'POST':
+        title = request.form['title']
+        body = request.form['body']
+        error = None
+
+        if not title:
+            error = 'Title is required.'
+
+        if error is not None:
+            flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                'INSERT INTO post (title, body, author_id)'
+                ' VALUES (?, ?, ?)',
+                (title, body, g.user['id'])
+            )
+            db.commit()
+            return redirect(url_for('blog.index'))
+
+    return render_template('blog/create.html')
