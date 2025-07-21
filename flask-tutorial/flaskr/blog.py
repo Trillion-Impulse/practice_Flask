@@ -32,27 +32,35 @@ def index(): # 위에서 연결한 라우트('/')에 해당하는 뷰 함수
     # 'blog/index.html'이라는 템플릿 파일을 불러오고, posts 데이터를 넘겨줌
     # 템플릿에서는 이 posts를 반복문 등으로 활용하여 화면에 게시글 목록을 출력
 
+# bp는 Blueprint 객체이며, / URL 경로로 접근하면 아래 함수를 실행
+# /create 경로를 처리하는 라우팅 함수
 @bp.route('/create', methods=('GET', 'POST'))
-@login_required
+@login_required # 해당 뷰에 접근하기 위해 로그인이 필요
 def create():
-    if request.method == 'POST':
+    if request.method == 'POST': # 요청이 POST인 경우 (폼을 제출한 경우)
+        # request.form은 제출된 폼의 키와 값들을 매핑하는 특별한 타입의 딕셔너리(dict)
         title = request.form['title']
         body = request.form['body']
-        error = None
 
-        if not title:
+        error = None # 초기 에러 변수는 None으로 설정
+
+        if not title: # title이 비어 있으면
             error = 'Title is required.'
 
-        if error is not None:
+        if error is not None: # 에러가 있을 경우
             flash(error)
         else:
-            db = get_db()
-            db.execute(
-                'INSERT INTO post (title, body, author_id)'
-                ' VALUES (?, ?, ?)',
+            db = get_db() # 데이터베이스 연결 객체 가져옴
+            db.execute( # db.execute는 사용자 입력을 위한 ? 플레이스홀더가 포함된 SQL 쿼리를 받고, 이 플레이스홀더를 대체할 값들의 튜플을 받음
+                        # 데이터베이스 라이브러리는 이 값들을 이스케이프 처리하므로, SQL 인젝션 공격에 취약하지 않게 됨
+                'INSERT INTO post (title, body, author_id)' # 게시글 정보를 post 테이블에 삽입
+                ' VALUES (?, ?, ?)', # 쿼리를 직접 문자열로 조합하지 않고 플레이스홀더(?)를 사용함으로써, SQL 주입 공격을 막고 보안을 강화
                 (title, body, g.user['id'])
+                # INSERT 같은 데이터 조작 SQL은 커밋을 해야 DB에 실제 반영
+                # 이 쿼리는 데이터를 수정하므로, 변경 사항을 저장하기 위해 이후에 db.commit()이 호출되어야 함
             )
-            db.commit()
-            return redirect(url_for('blog.index'))
+            db.commit() # 데이터베이스에 커밋하여 저장
+            return redirect(url_for('blog.index')) # 글 작성이 완료되면 blog.index 뷰로 리디렉션
 
     return render_template('blog/create.html')
+    # POST가 아닌 경우 (또는 오류가 있는 경우), create.html 템플릿을 렌더링하여 글쓰기 페이지를 표시
