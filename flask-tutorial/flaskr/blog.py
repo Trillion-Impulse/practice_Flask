@@ -102,29 +102,38 @@ def get_post(id, check_author=True):
     return post
 
 
+# 이 라우트는 /1/update, /42/update처럼 게시글 ID를 포함한 URL을 처리
+# URL 경로의 <int:id>는 Flask가 URL에서 ID를 추출할 수 있게 해줌
+# 실제 URL은 /1/update와 같을 것
+# <int:id> 덕분에 Flask는 자동으로 id를 정수로 파싱해서 함수에 전달
+# int:를 명시하지 않고 <id>만 사용하면, 그것은 문자열이 됨
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
-@login_required
-def update(id):
-    post = get_post(id)
+@login_required # 해당 뷰에 접근하기 위해 로그인이 필요
+def update(id): # 게시글 ID를 인자로 받아 처리
+    post = get_post(id) # 작성자가 현재 사용자와 일치하는지 확인 후 게시글을 가져옴
 
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
         error = None
 
-        if not title:
+        if not title: # 제목이 비어 있다면 오류 메시지를 지정
             error = 'Title is required.'
 
-        if error is not None:
+        if error is not None: # 오류가 있으면 flash()로 사용자에게 메시지를 보여줌
             flash(error)
         else:
             db = get_db()
-            db.execute(
+            db.execute( # 게시글을 수정하는 SQL UPDATE 쿼리를 실행
                 'UPDATE post SET title = ?, body = ?'
                 ' WHERE id = ?',
                 (title, body, id)
+                # 데이터 조작 SQL은 커밋을 해야 DB에 실제 반영
+                # 이 쿼리는 데이터를 수정하므로, 변경 사항을 저장하기 위해 이후에 db.commit()이 호출되어야 함
             )
-            db.commit()
-            return redirect(url_for('blog.index'))
+            db.commit() # 데이터베이스에 커밋하여 저장
+            return redirect(url_for('blog.index')) # 수정이 완료되면 블로그 메인 페이지로 리디렉션
 
     return render_template('blog/update.html', post=post)
+    # GET 요청이거나 폼 제출에 오류가 있는 경우, 수정 페이지를 렌더링
+    # 기존 게시글 내용을 post로 넘겨서 폼에 미리 채워줌
