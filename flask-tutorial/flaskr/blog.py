@@ -66,18 +66,37 @@ def create():
     # POST가 아닌 경우 (또는 오류가 있는 경우), create.html 템플릿을 렌더링하여 글쓰기 페이지를 표시
 
 
+# id를 인자로 받고, check_author는 기본값이 True인 get_post 함수를 정의
+# heck_author=False로 설정하면 작성자 확인을 생략 가능
+# 이는 게시글 하나를 페이지에 표시하는 뷰를 작성할 때 유용
+# 예: 게시글 보기(view) 페이지에서는 누구든지 볼 수 있지만, 수정/삭제는 작성자만 가능해야 함
+# 이 옵션은 get_post() 함수를 여러 용도로 재사용 가능하게 만들어 줌
 def get_post(id, check_author=True):
-    post = get_db().execute(
+    post = get_db().execute( # get_db()를 호출하고 그 결과에서 execute()를 호출하여 쿼리를 실행
         'SELECT p.id, title, body, created, author_id, username'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' WHERE p.id = ?',
         (id,)
+        # (id,): 1개의 요소만 있는 튜플(tuple)
+        # Python에서 튜플을 만들 때는 쉼표가 중요
+        # 괄호는 시각적 구분을 위한 것이고, 쉼표가 있어야 진짜 튜플
+        # ? 자리에 들어갈 값은 튜플 또는 리스트 형태로 전달되어야 함
+        # 튜플로 전달하지 않으면 execute() 함수가 에러를 발생시킴
+        # id 하나만 전달하는 경우에도 반드시 튜플 형태로 (id,)라고 써야 함
     ).fetchone()
 
-    if post is None:
+    if post is None: # 게시글이 존재하지 않는 경우
         abort(404, f"Post id {id} doesn't exist.")
+        # abort()는 HTTP 상태 코드를 반환하는 특별한 예외를 발생시킴
+        # 오류와 함께 보여줄 메시지를 선택적으로 받을 수 있으며, 그렇지 않으면 기본 메시지가 사용됨
+        # abort()는 Flask에서 에러 응답을 쉽게 보낼 수 있게 해주는 함수
+        # 404, 403 등의 상태 코드를 직접 지정 가능
+        # 추가 메시지를 함께 보낼 수 있음
+        # 404는 "찾을 수 없음"을 의미
 
+    # 현재 로그인한 사용자(g.user)가 해당 게시글의 작성자가 아니면
     if check_author and post['author_id'] != g.user['id']:
         abort(403)
+        # 403은 "금지됨"을 의미
 
     return post
