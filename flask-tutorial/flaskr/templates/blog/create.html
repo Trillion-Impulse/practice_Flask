@@ -6,10 +6,20 @@
 
 {% block content %}
   <form method="post">
+    {# method="post"는 사용자가 입력한 정보를 HTTP POST 방식으로 서버에 전송
+    GET 방식은 URL에 데이터를 노출하지만, POST는 그렇지 않기 때문에 보안상 더 적절 #}
     <label for="title">Title</label>
+    {# title 입력창에 대한 라벨
+    for="title"은 아래의 input 요소의 id와 연결
+    라벨 클릭 시 해당 입력창으로 커서가 이동되므로 접근성 향상에도 기여 #}
     <input name="title" id="title" value="{{ request.form['title'] }}" required>
+    {# name="title"은 이 값이 POST 요청에서 request.form['title']로 접근된다는 뜻
+    id="title"은 레이블과 연결하기 위한 식별자
+    value="{{ request.form['title'] }}"는 사용자가 이전에 입력한 값을 다시 보여줌
+    폼 검증 실패 시 입력값이 사라지지 않도록 하기 위해 사용 #}
     <label for="body">Body</label>
     <textarea name="body" id="body">{{ request.form['body'] }}</textarea>
+    {# 사용자가 작성한 본문 내용을 request.form['body']로 다시 보여줌 #}
     <input type="submit" value="Save">
   </form>
 {% endblock %}
