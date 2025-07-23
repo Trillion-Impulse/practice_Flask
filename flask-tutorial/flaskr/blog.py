@@ -139,11 +139,25 @@ def update(id): # 게시글 ID를 인자로 받아 처리
     # 기존 게시글 내용을 post로 넘겨서 폼에 미리 채워줌
 
 
+# 이 라우트는 /1/delete, /42/delete처럼 게시글 ID를 포함한 URL을 처리
+# URL 경로의 <int:id>는 Flask가 URL에서 ID를 추출할 수 있게 해줌
+# 실제 URL은 /1/delete와 같을 것
+# <int:id> 덕분에 Flask는 자동으로 id를 정수로 파싱해서 함수에 전달
+# int:를 명시하지 않고 <id>만 사용하면, 그것은 문자열이 됨
+# methods=('POST',): 이 뷰는 POST 요청만 처리
+# 사용자가 직접 주소창에 /5/delete를 입력하면, GET 요청이므로 405 에러가 발생
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
 def delete(id):
-    get_post(id)
+    get_post(id) # 삭제 전, 게시글이 존재하는지 확인하기 위해 get_post() 함수를 호출
+                # 게시글이 없으면 404 오류를 발생
     db = get_db()
-    db.execute('DELETE FROM post WHERE id = ?', (id,))
+    db.execute('DELETE FROM post WHERE id = ?', (id,)) # 게시글을 삭제하는 SQL DELETE 쿼리를 실행
+                # 데이터 조작 SQL은 커밋을 해야 DB에 실제 반영
+                # 이 쿼리는 데이터를 수정하므로, 변경 사항을 저장하기 위해 이후에 db.commit()이 호출되어야 함
     db.commit()
+    # 데이터베이스에 커밋하여 저장
+    # DB에 변경사항(삭제)을 확정(commit)
+    # 이걸 하지 않으면 삭제가 실제로 적용되지 않음
     return redirect(url_for('blog.index'))
+    # 삭제가 완료되면 블로그 글 목록 페이지(blog.index)로 이동
