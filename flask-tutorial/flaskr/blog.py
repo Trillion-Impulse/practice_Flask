@@ -137,3 +137,13 @@ def update(id): # 게시글 ID를 인자로 받아 처리
     return render_template('blog/update.html', post=post)
     # GET 요청이거나 폼 제출에 오류가 있는 경우, 수정 페이지를 렌더링
     # 기존 게시글 내용을 post로 넘겨서 폼에 미리 채워줌
+
+
+@bp.route('/<int:id>/delete', methods=('POST',))
+@login_required
+def delete(id):
+    get_post(id)
+    db = get_db()
+    db.execute('DELETE FROM post WHERE id = ?', (id,))
+    db.commit()
+    return redirect(url_for('blog.index'))
