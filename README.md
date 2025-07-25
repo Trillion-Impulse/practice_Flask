@@ -392,10 +392,13 @@ with app.test_request_context():
     {% else %}
         <h1>Hello, World!</h1>
     {% endif %}
+    {# 주석 내용 #}
     ```
     - `{{ person }}`: 템플릿에 전달된 변수 값을 출력
     - `{% if %}, {% else %}, {% endif %}`: Jinja2의 조건문 구문
     - person이라는 변수가 존재하면 해당 이름으로 인사하고, 없으면 "Hello, World!"를 출력
+    - jinja2의 주석 형식: `{# 주석 #}` 형식으로 사용, HTML의 주석인 `<!-- 주석 -->`와 다름
+        - jinja 주석은 템플릿 처리 시 완전히 제거되므로, 클라이언트 쪽에서는 볼 수 없음
 - 템플릿 안에서는 config, request, session, 그리고 g 객체들뿐만 아니라 
     url_for() 함수와 get_flashed_messages() 함수에도 접근 가능
     - config: Flask 설정에 접근
